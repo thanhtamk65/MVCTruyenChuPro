@@ -1,0 +1,38 @@
+﻿@model WebTruyenMVC.Entity.StoryEntity
+
+@{
+    ViewData["Title"] = "Chi tiết Truyện";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="row">
+    <div class="col-md-3">
+        <img src="@Model.CoverImage" alt="Ảnh bìa" class="img-fluid" />
+    </div>
+    <div class="col-md-9">
+        <dl class="row">
+            <dt class="col-sm-3">Tên truyện</dt>
+            <dd class="col-sm-9">@Model.Title</dd>
+
+
+            <dt class="col-sm-3">Mô tả</dt>
+            <dd class="col-sm-9">@Model.Description</dd>
+
+            <dt class="col-sm-3">Trạng thái</dt>
+            <dd class="col-sm-9">@Model.Status</dd>
+
+            <dt class="col-sm-3">Đánh giá</dt>
+            <dd class="col-sm-9">@Model.Rating</dd>
+
+            <dt class="col-sm-3">Lượt xem</dt>
+            <dd class="col-sm-9">@Model.Views</dd>
+
+            <dt class="col-sm-3">Ngày tạo</dt>
+            <dd class="col-sm-9">@Model.Created.ToString("dd/MM/yyyy HH:mm")</dd>
+        </dl>
+
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+        <a asp-controller="Chapter" asp-action="Index" asp-route-storyId="@Model.Id" class="btn btn-primary ms-2">Xem danh sách chương</a>
+    </div>
+</div>

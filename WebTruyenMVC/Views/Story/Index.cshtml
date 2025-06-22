@@ -1,0 +1,49 @@
+﻿@model IEnumerable<WebTruyenMVC.Entity.StoryEntity>
+
+@{
+    ViewData["Title"] = "Danh sách Truyện";
+}
+
+<h2 class="mb-4">@ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-success mb-3">+ Thêm Truyện mới</a>
+</p>
+
+<div class="row">
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center text-muted">Không có truyện nào.</div>
+    }
+    else
+    {
+        @foreach (var story in Model)
+        {
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="@story.CoverImage" class="card-img-top" alt="Ảnh bìa" style="height: 250px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-truncate" title="@story.Title">@story.Title</h5>
+                        <p class="card-text small text-muted mb-1">
+                            <strong>Lượt xem:</strong> @story.Views
+                        </p>
+                        <p class="card-text small text-muted mb-2">
+                            <strong>Trạng thái:</strong> @story.Status
+                        </p>
+                        <div class="mt-auto">
+                            <a asp-action="Details" asp-route-id="@story.Id" class="btn btn-sm btn-outline-primary w-100 mb-1">Chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .card-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>

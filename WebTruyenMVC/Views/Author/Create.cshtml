@@ -1,0 +1,30 @@
+﻿@model WebTruyenMVC.Entity.AuthorEntity
+
+@{
+    ViewData["Title"] = "Tạo Tác Giả Mới";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Name" class="control-label">Tên tác giả</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Bio" class="control-label">Tiểu sử</label>
+        <textarea asp-for="Bio" class="form-control" rows="5"></textarea>
+        <span asp-validation-for="Bio" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Tạo mới</button>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

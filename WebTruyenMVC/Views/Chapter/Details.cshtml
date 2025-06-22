@@ -1,0 +1,17 @@
+﻿@model WebTruyenMVC.Entity.ChapterEntity
+
+@{
+    ViewData["Title"] = "Chi tiết Chương";
+}
+
+<h2>@Model.Title</h2>
+
+<p><strong>Số chương:</strong> @Model.ChapterNumber</p>
+<p><strong>Ngày đăng:</strong> @Model.Created.ToString("dd/MM/yyyy HH:mm")</p>
+
+<hr />
+<div class="chapter-content">
+    @Html.Raw(Model.Content.Replace("\n", "<br />"))
+</div>
+
+<a asp-action="Index" asp-route-storyId="@Model.StoryId" class="btn btn-secondary mt-3">Quay lại danh sách chương</a>

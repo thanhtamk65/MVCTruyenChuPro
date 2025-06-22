@@ -1,0 +1,40 @@
+﻿@model IEnumerable<WebTruyenMVC.Entity.AuthorEntity>
+
+@{
+    ViewData["Title"] = "Danh sách Tác giả";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">+ Thêm Tác giả</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Tên Tác Giả</th>
+            <th>Tiểu sử</th>
+            <th>Số truyện</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="4" class="text-center text-muted">Không có tác giả nào.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var author in Model)
+            {
+                <tr>
+                    <td>@author.Name</td>
+                    <td>@(author.Bio?.Length > 100 ? author.Bio.Substring(0, 100) + "..." : author.Bio)</td>
+                    <td>@(author.Stories?.Count ?? 0)</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
