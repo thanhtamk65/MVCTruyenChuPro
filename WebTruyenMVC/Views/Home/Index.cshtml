@@ -48,7 +48,7 @@
         {
             <div class="col-lg-2 col-md-3 col-sm-4">
                 <div class="card mb-3">
-                    <a href="details.html">
+                    <a asp-controller="Story" asp-action="DetailStory" asp-route-id="@story.Id">
                         <img src="@story.CoverImage" class="card-img-top" alt="@story.Title">
                     </a>
                     <div class="over text-center">
@@ -66,11 +66,11 @@
                                 </tbody>
                             </table>
                         </div>
-                        <p class="about text-muted">Truyện tranh nổi bật</p>
-                        <a class="reading btn" href="details.html">Bắt đầu đọc</a>
+                        <p class="about text-muted">Truyện nổi bật</p>
+                        <a class="reading btn" asp-controller="Story" asp-action="DetailStory" asp-route-id="@story.Id">Bắt đầu đọc</a>
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title"><a href="details.html">@story.Title</a></h5>
+                        <h5 class="card-title"><a href="detailstory.html">@story.Title</a></h5>
                         <p class="card-text">Chương: @story.Status</p>
                         <p class="card-text"><small class="text-muted">Cập nhật @story.Created.ToString("d")</small></p> 
                     </div>
@@ -92,11 +92,14 @@
         {
             <div class="col-lg-2 col-md-3 col-sm-4">
                 <div class="card mb-3">
-                    <a href="details.html">
+                    <a asp-controller="Story" asp-action="DetailStory" asp-route-id="@story.Id">
                         <img src="@story.CoverImage" class="card-img-top" alt="@story.Title">
                     </a>
                     <div class="card-body">
-                        <h5 class="card-title"><a href="details.html">@story.Title</a></h5>
+                        <h5 class="card-title">
+                            <a asp-controller="Story" asp-action="DetailStory" asp-route-id="@story.Id">@story.Title</a>
+                        </h5>                        
+                        
                         <p class="card-text text-muted">Lượt xem: @story.Views</p>
                     </div>
                 </div>

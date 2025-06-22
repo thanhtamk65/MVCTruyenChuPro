@@ -19,7 +19,7 @@ public class ChapterController : Controller
         if (string.IsNullOrEmpty(storyId))
             return BadRequest("Missing storyId");
 
-        var collection = _mongoContext.GetCollection<ChapterEntity>("Chapter");
+        var collection = _mongoContext.GetCollection<ChapterEntity>("Chapters");
         var filter = Builders<ChapterEntity>.Filter.Eq(c => c.StoryId, storyId);
         var chapters = await collection.Find(filter).SortBy(c => c.ChapterNumber).ToListAsync();
 
@@ -30,11 +30,26 @@ public class ChapterController : Controller
     // GET: Chapter/Details/5
     public async Task<IActionResult> Details(string id)
     {
-        var collection = _mongoContext.GetCollection<ChapterEntity>("Chapter");
+        var collection = _mongoContext.GetCollection<ChapterEntity>("Chapters");
         var chapter = await collection.Find(c => c.Id == id).FirstOrDefaultAsync();
 
         if (chapter == null)
             return NotFound();
+
+        // Find previous chapter
+        var prevChapter = await collection
+            .Find(c => c.StoryId == chapter.StoryId && c.ChapterNumber < chapter.ChapterNumber)
+            .SortByDescending(c => c.ChapterNumber)
+            .FirstOrDefaultAsync();
+
+        // Find next chapter
+        var nextChapter = await collection
+            .Find(c => c.StoryId == chapter.StoryId && c.ChapterNumber > chapter.ChapterNumber)
+            .SortBy(c => c.ChapterNumber)
+            .FirstOrDefaultAsync();
+
+        ViewBag.PrevChapterId = prevChapter?.Id;
+        ViewBag.NextChapterId = nextChapter?.Id;
 
         return View(chapter);
     }
@@ -57,7 +72,7 @@ public class ChapterController : Controller
         if (ModelState.IsValid)
         {
             chapter.Created = DateTime.UtcNow;
-            var collection = _mongoContext.GetCollection<ChapterEntity>("Chapter");
+            var collection = _mongoContext.GetCollection<ChapterEntity>("Chapters");
             await collection.InsertOneAsync(chapter);
             return RedirectToAction("Index", new { storyId = chapter.StoryId });
         }

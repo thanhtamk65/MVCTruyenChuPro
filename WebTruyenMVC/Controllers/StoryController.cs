@@ -60,8 +60,6 @@ namespace WebTruyenMVC.Controllers
             return View(story);
         }
 
-
-
         public IActionResult Create()
         {
             var authorModel = new AuthorModel(_mongoContext, _logger);
@@ -180,6 +178,61 @@ namespace WebTruyenMVC.Controllers
 
             return View(list ?? new List<StoryEntity>());
         }
+
+        public async Task<IActionResult> DetailStory(string id, int page = 1)
+        {
+            var storyModel = new StoryModel(_mongoContext, _logger);
+            var authorModel = new AuthorModel(_mongoContext, _logger);
+
+            var storyResponse = await storyModel.GetStoryByIdAsync(id);
+            if (storyResponse.Code != 200 || storyResponse.Data == null)
+                return NotFound();
+
+            var story = storyResponse.Data as StoryEntity;
+            if (story == null)
+                return NotFound();
+
+            if (!string.IsNullOrEmpty(story.AuthorId))
+            {
+                var authorResponse = await authorModel.GetAuthorByIdAsync(story.AuthorId);
+                if (authorResponse.Code == 200 && authorResponse.Data is AuthorEntity author)
+                {
+                    story.AuthorInfo = author;
+                }
+            }
+
+            // Lấy danh sách chương phân trang
+            var chapterResponse = await storyModel.GetChaptersByStoryIdAsync(id, page, 100);
+            var chapters = new List<ChapterEntity>();
+            long total = 0;
+            if (chapterResponse.Code == 200 && chapterResponse.Data != null)
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(chapterResponse.Data);
+                var parsed = System.Text.Json.JsonSerializer.Deserialize<ChapterListResponse>(json);
+                chapters = parsed?.ListData ?? new List<ChapterEntity>();
+                total = parsed?.TotalItemCounts ?? 0;
+            }
+
+            var vm = new StoryDetailViewModel
+            {
+                Story = story,
+                Chapters = chapters,
+                Page = page,
+                PageSize = 100,
+                TotalItemCounts = total
+            };
+
+            return View(vm);
+        }
+
+        // Thêm class hỗ trợ deserialize
+        public class ChapterListResponse
+        {
+            public long TotalItemCounts { get; set; }
+            public int Page { get; set; }
+            public int PageSize { get; set; }
+            public List<ChapterEntity> ListData { get; set; } = new();
+        }
     }
 
     // Phục vụ cho GetAllStoryAsync → lấy ListData từ MessagesResponse.Data
@@ -189,5 +242,14 @@ namespace WebTruyenMVC.Controllers
         public int Page { get; set; }
         public int PageSize { get; set; }
         public List<StoryEntity> ListData { get; set; } = new();
+    }
+
+    // Phục vụ cho GetChaptersByStoryIdAsync
+    public class ChapterListResponse
+    {
+        public long TotalItemCounts { get; set; }
+        public int Page { get; set; }
+        public int PageSize { get; set; }
+        public List<ChapterEntity> ListData { get; set; } = new();
     }
 }

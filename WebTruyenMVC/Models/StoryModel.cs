@@ -168,5 +168,31 @@ namespace WebTruyenMVC.Models
             return response;
         }
 
+        public async Task<MessagesResponse> GetChaptersByStoryIdAsync(string storyId, int page = 1, int pageSize = 100)
+        {
+            var chapterCollection = mongoContext.GetCollection<ChapterEntity>("Chapters");
+            var filter = Builders<ChapterEntity>.Filter.Eq(c => c.StoryId, storyId);
+
+            var totalRecords = await chapterCollection.CountDocumentsAsync(filter);
+
+            var chapters = await chapterCollection.Find(filter)
+                .SortBy(c => c.ChapterNumber)
+                .Skip((page - 1) * pageSize)
+                .Limit(pageSize)
+                .ToListAsync();
+
+            return new MessagesResponse
+            {
+                Code = 200,
+                Message = "Success",
+                Data = new
+                {
+                    TotalItemCounts = totalRecords,
+                    Page = page,
+                    PageSize = pageSize,
+                    ListData = chapters
+                }
+            };
+        }
     }
 }

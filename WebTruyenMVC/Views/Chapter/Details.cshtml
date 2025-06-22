@@ -14,4 +14,14 @@
     @Html.Raw(Model.Content.Replace("\n", "<br />"))
 </div>
 
-<a asp-action="Index" asp-route-storyId="@Model.StoryId" class="btn btn-secondary mt-3">Quay lại danh sách chương</a>
+<div class="mt-3">
+    @if (ViewBag.PrevChapterId != null)
+    {
+        <a asp-action="Details" asp-route-id="@ViewBag.PrevChapterId" class="btn btn-primary">Chương trước</a>
+    }
+    @if (ViewBag.NextChapterId != null)
+    {
+        <a asp-action="Details" asp-route-id="@ViewBag.NextChapterId" class="btn btn-primary ms-2">Chương sau</a>
+    }
+    <a asp-action="Index" asp-route-storyId="@Model.StoryId" class="btn btn-secondary ms-2">Quay lại danh sách chương</a>
+</div>
