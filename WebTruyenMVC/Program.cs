@@ -85,4 +85,14 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.Value.Equals("/index.html", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.Redirect("/");
+        return;
+    }
+    await next();
+});
+
 app.Run();
