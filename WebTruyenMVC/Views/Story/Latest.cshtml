@@ -1,0 +1,111 @@
+﻿@model LatestStoriesViewModel
+
+@{
+    ViewData["Title"] = "Các Truyện Mới Nhất";
+}
+
+<h2 class="mb-4">@ViewData["Title"]</h2>
+
+@if (!Model.Stories.Any())
+{
+    <div class="text-center text-muted">Không có truyện nào.</div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var story in Model.Stories)
+        {
+            <div class="list-group-item py-3 px-2 mb-2 rounded d-flex align-items-center story-item">
+                <img src="/@story.CoverImage"
+                     alt="@story.Title"
+                     class="rounded mr-3 story-thumb"
+                     style="width: 80px; height: 110px; object-fit: cover; background: #222;" />
+                <div class="flex-grow-1 ml-3">
+                    <h5 class="mb-1">@story.Title</h5>
+                    <div class="mb-1 text-muted" style="font-size: 0.95em;">
+                        <span><strong>Lượt xem:</strong> @story.Views</span> |
+                        <span><strong>Trạng thái:</strong> @story.Status</span>
+                    </div>
+                    <div class="mb-2 text-truncate" style="max-width: 600px;">
+                        @story.Description
+                    </div>
+                    <a asp-action="Details" asp-route-id="@story.Id" class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- Pagination -->
+@if (Model.TotalPages > 1)
+{
+    int startPage = Math.Max(1, Model.CurrentPage - 2);
+    int endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 2);
+
+    if (endPage - startPage < 4)
+    {
+        if (startPage == 1)
+            endPage = Math.Min(Model.TotalPages, startPage + 4);
+        else if (endPage == Model.TotalPages)
+            startPage = Math.Max(1, endPage - 4);
+    }
+
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <!-- First page -->
+            <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Latest" asp-route-page="1">&laquo;&laquo;</a>
+            </li>
+            <!-- Previous page -->
+            <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Latest" asp-route-page="@(Model.CurrentPage - 1)">&laquo;</a>
+            </li>
+
+            @if (startPage > 1)
+            {
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+
+            @for (int i = startPage; i <= endPage; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Latest" asp-route-page="@i">@i</a>
+                </li>
+            }
+
+            @if (endPage < Model.TotalPages)
+            {
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+
+            <!-- Next page -->
+            <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Latest" asp-route-page="@(Model.CurrentPage + 1)">&raquo;</a>
+            </li>
+            <!-- Last page -->
+            <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Latest" asp-route-page="@(Model.TotalPages)">&raquo;&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+}
+
+<style>
+    .story-item {
+        background: #181818;
+        border: 1px solid #333;
+    }
+
+    .story-thumb {
+        min-width: 80px;
+        min-height: 110px;
+        max-width: 80px;
+        max-height: 110px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    .list-group-item {
+        border: none;
+    }
+</style>

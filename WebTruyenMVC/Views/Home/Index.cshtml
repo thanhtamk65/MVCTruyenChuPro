@@ -60,11 +60,16 @@
     <div class="row">
         <div class="col-lg-6">
             <h2 class="font-weight-bolder float-left">Các Truyện Mới Nhất</h2>
+            <a class="btn btn-link float-right"
+               asp-controller="Story"
+               asp-action="Latest">
+                Xem thêm &raquo;
+            </a>
         </div>
     </div>
 
     <div class="posts row">
-        @foreach (var story in Model)  
+        @foreach (var story in Model)
         {
             <div class="col-lg-2 col-md-3 col-sm-4">
                 <div class="card mb-3">
@@ -78,10 +83,10 @@
                         <div class="about-list">
                             <table class="table table-borderless">
                                 <tbody>
-                                    
+
                                     <tr>
                                         <th scope="row">Update:</th>
-                                        <td>@story.Status</td> 
+                                        <td>@story.Status</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -92,7 +97,7 @@
                     <div class="card-body">
                         <h5 class="card-title"><a href="detailstory.html">@story.Title</a></h5>
                         <p class="card-text">Chương: @story.Status</p>
-                        <p class="card-text"><small class="text-muted">Cập nhật @story.Created.ToString("d")</small></p> 
+                        <p class="card-text"><small class="text-muted">Cập nhật @story.Created.ToString("d")</small></p>
                     </div>
                 </div>
             </div>
@@ -102,28 +107,78 @@
 </div>
 
 <div class="recommended container mt-5">
-    <div class="row">
+    <div class="row align-items-center mb-3">
         <div class="col-lg-6">
-            <h2 class="font-weight-bolder">Truyện Đề Cử</h2>
+            <h2 class="font-weight-bolder d-inline-block mb-0">Truyện Đọc Nhiều</h2>
+        </div>
+        <div class="col-lg-6 text-right">
+            <a class="btn btn-link" asp-controller="Story" asp-action="MostViewed">Xem thêm &raquo;</a>
         </div>
     </div>
-    <div class="posts row">
+    <div class="row justify-content-center">
         @foreach (var story in (List<WebTruyenMVC.Entity.StoryEntity>)ViewBag.Recommended)
         {
-            <div class="col-lg-2 col-md-3 col-sm-4">
-                <div class="card mb-3">
+            <div class="col-lg-2 col-md-3 col-sm-4 d-flex">
+                <div class="card mb-4 flex-fill shadow-sm mostviewed-card">
                     <a asp-controller="Story" asp-action="DetailStory" asp-route-id="@story.Id">
                         <img src="@story.CoverImage" class="card-img-top" alt="@story.Title">
                     </a>
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <a asp-controller="Story" asp-action="DetailStory" asp-route-id="@story.Id">@story.Title</a>
-                        </h5>                        
-                        
-                        <p class="card-text text-muted">Lượt xem: @story.Views</p>
+                    <div class="card-body text-center p-2">
+                        <h6 class="card-title mb-1 text-truncate" title="@story.Title">@story.Title</h6>
+                        <p class="card-text text-muted mb-0" style="font-size:0.95em;">Lượt xem: @story.Views</p>
                     </div>
                 </div>
             </div>
         }
     </div>
 </div>
+
+<style>
+    .mostviewed-card {
+        min-height: 320px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        border-radius: 10px;
+        background: #fff;
+    }
+
+    .mostviewed-card .card-img-top {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        background: #222;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .mostviewed-card .card-title {
+        font-size: 1.05em;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .mostviewed-card .card-body {
+        padding: 0.75rem 0.5rem 0.5rem 0.5rem;
+    }
+
+    @@media (max-width: 991.98px) {
+        .mostviewed-card {
+            min-height: 300px;
+        }
+        .mostviewed-card .card-img-top {
+            height: 150px;
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .mostviewed-card {
+            min-height: 260px;
+        }
+        .mostviewed-card .card-img-top {
+            height: 120px;
+        }
+    }
+</style>

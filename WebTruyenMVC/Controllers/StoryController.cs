@@ -19,10 +19,17 @@ namespace WebTruyenMVC.Controllers
         }
 
         // Danh sách truyện
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? OrderBy = "Created", bool OrderByDescending = true, int page = 1, int pageSize = 24)
         {
             var model = new StoryModel(_mongoContext, _logger);
-            var response = await model.GetAllStoryAsync(new FilterEntity());
+            var filter = new FilterEntity
+            {
+                Page = page,
+                PageSize = pageSize,
+                OrderBy = OrderBy ?? "Created",
+                OrderByDescending = OrderByDescending
+            };
+            var response = await model.GetAllStoryAsync(filter);
 
             if (response.Code != 200 || response.Data == null)
                 return View(new List<StoryEntity>());
@@ -79,7 +86,7 @@ namespace WebTruyenMVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(StoryEntity story)
+        public async Task<IActionResult> Create(StoryEntity story, IFormFile CoverImageFile)
         {
             var authorModel = new AuthorModel(_mongoContext, _logger);
             var authorsResponse = await authorModel.GetAllAuthorAsync(new FilterEntity());
@@ -93,6 +100,26 @@ namespace WebTruyenMVC.Controllers
             }
             ViewBag.Authors = authors;
 
+            // Xử lý upload ảnh bìa
+            if (CoverImageFile != null && CoverImageFile.Length > 0)
+            {
+                var fileName = Path.GetFileNameWithoutExtension(CoverImageFile.FileName);
+                var extension = Path.GetExtension(CoverImageFile.FileName);
+                var newFileName = $"{fileName}_{Guid.NewGuid()}{extension}";
+                var imagePath = Path.Combine("wwwroot", "img", newFileName);
+
+                // Đảm bảo thư mục img tồn tại
+                Directory.CreateDirectory(Path.GetDirectoryName(imagePath)!);
+
+                using (var stream = new FileStream(imagePath, FileMode.Create))
+                {
+                    await CoverImageFile.CopyToAsync(stream);
+                }
+
+                // Lưu đường dẫn tương đối vào DB
+                story.CoverImage = "img/" + newFileName;
+            }
+
             if (ModelState.IsValid)
             {
                 var model = new StoryModel(_mongoContext, _logger);
@@ -102,6 +129,7 @@ namespace WebTruyenMVC.Controllers
             }
             return View(story);
         }
+
         public class StoryDetailsViewModel
         {
             public StoryEntity Story { get; set; } = null!;
@@ -225,13 +253,56 @@ namespace WebTruyenMVC.Controllers
             return View(vm);
         }
 
-        // Thêm class hỗ trợ deserialize
-        public class ChapterListResponse
+        public async Task<IActionResult> Latest(int page = 1, int pageSize = 20)
         {
-            public long TotalItemCounts { get; set; }
-            public int Page { get; set; }
-            public int PageSize { get; set; }
-            public List<ChapterEntity> ListData { get; set; } = new();
+            var model = new StoryModel(_mongoContext, _logger);
+            var filter = new FilterEntity
+            {
+                Page = page,
+                PageSize = pageSize,
+                OrderBy = "Created",
+                OrderByDescending = true
+            };
+            var response = await model.GetAllStoryAsync(filter);
+
+            var json = JsonSerializer.Serialize(response.Data);
+            var parsed = JsonSerializer.Deserialize<StoryListResponse>(json);
+
+            int totalPages = (int)Math.Ceiling((parsed?.TotalItemCounts ?? 0) / (double)pageSize);
+
+            var vm = new LatestStoriesViewModel
+            {
+                Stories = parsed?.ListData ?? new List<StoryEntity>(),
+                CurrentPage = page,
+                TotalPages = totalPages
+            };
+            return View(vm);
+        }
+
+        public async Task<IActionResult> MostViewed(int page = 1, int pageSize = 20)
+        {
+            var model = new StoryModel(_mongoContext, _logger);
+            var filter = new FilterEntity
+            {
+                Page = page,
+                PageSize = pageSize,
+                OrderBy = "Views",
+                OrderByDescending = true
+            };
+            var response = await model.GetAllStoryAsync(filter);
+
+            var json = JsonSerializer.Serialize(response.Data);
+            var parsed = JsonSerializer.Deserialize<StoryListResponse>(json);
+
+            int totalPages = (int)Math.Ceiling((parsed?.TotalItemCounts ?? 0) / (double)pageSize);
+
+            var vm = new LatestStoriesViewModel
+            {
+                Stories = parsed?.ListData ?? new List<StoryEntity>(),
+                CurrentPage = page,
+                TotalPages = totalPages
+            };
+            return View(vm);
         }
     }
 
@@ -252,4 +323,11 @@ namespace WebTruyenMVC.Controllers
         public int PageSize { get; set; }
         public List<ChapterEntity> ListData { get; set; } = new();
     }
+}
+
+public class LatestStoriesViewModel
+{
+    public IEnumerable<WebTruyenMVC.Entity.StoryEntity> Stories { get; set; } = new List<WebTruyenMVC.Entity.StoryEntity>();
+    public int CurrentPage { get; set; }
+    public int TotalPages { get; set; }
 }
