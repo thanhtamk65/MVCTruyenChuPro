@@ -24,12 +24,29 @@ namespace WebTruyenMVC.Controllers
             var response = await model.GetAllAuthorAsync(new FilterEntity());
 
             if (response.Code != 200 || response.Data == null)
-                return View(new List<AuthorEntity>());
+                return View(new List<AuthorWithStoryCountViewModel>());
 
             var json = JsonSerializer.Serialize(response.Data);
             var parsed = JsonSerializer.Deserialize<AuthorListResponse>(json);
 
-            return View(parsed?.ListData ?? new List<AuthorEntity>());
+            var authors = parsed?.ListData ?? new List<AuthorEntity>();
+
+            // Lấy collection Stories
+            var storyCollection = _mongoContext.GetCollection<StoryEntity>("Stories");
+
+            // Tạo danh sách view model
+            var authorViewModels = new List<AuthorWithStoryCountViewModel>();
+            foreach (var author in authors)
+            {
+                var count = await storyCollection.CountDocumentsAsync(s => s.AuthorId == author.Id);
+                authorViewModels.Add(new AuthorWithStoryCountViewModel
+                {
+                    Author = author,
+                    StoryCount = (int)count
+                });
+            }
+
+            return View(authorViewModels);
         }
 
         // Chi tiết tác giả
@@ -74,7 +91,7 @@ namespace WebTruyenMVC.Controllers
             if (response.Code != 200 || response.Data == null)
                 return NotFound();
 
-            var author = JsonSerializer.Deserialize<AuthorEntity>(response.Data.ToString()!);
+            var author = response.Data as AuthorEntity;
             return View(author);
         }
 

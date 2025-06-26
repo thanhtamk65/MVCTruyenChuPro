@@ -1,4 +1,4 @@
-﻿@model IEnumerable<WebTruyenMVC.Entity.AuthorEntity>
+﻿@model IEnumerable<WebTruyenMVC.Entity.AuthorWithStoryCountViewModel>
 
 @{
     ViewData["Title"] = "Danh sách Tác giả";
@@ -16,6 +16,7 @@
             <th>Tên Tác Giả</th>
             <th>Tiểu sử</th>
             <th>Số truyện</th>
+            <th style="width: 140px;">Chức năng</th>
         </tr>
     </thead>
     <tbody>
@@ -27,12 +28,21 @@
         }
         else
         {
-            @foreach (var author in Model)
+            @foreach (var item in Model)
             {
                 <tr>
-                    <td>@author.Name</td>
-                    <td>@(author.Bio?.Length > 100 ? author.Bio.Substring(0, 100) + "..." : author.Bio)</td>
-                    <td>@(author.Stories?.Count ?? 0)</td>
+                    <td>@item.Author.Name</td>
+                    <td>@(item.Author.Bio?.Length > 100 ? item.Author.Bio.Substring(0, 100) + "..." : item.Author.Bio)</td>
+                    <td>@item.StoryCount</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Author.Id"
+                           class="btn btn-sm btn-warning me-1">Chỉnh sửa</a>
+                        <form asp-action="Delete" asp-route-id="@item.Author.Id"
+                              method="post" style="display:inline;"
+                              onsubmit="return confirm('Bạn có chắc muốn xóa tác giả này?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                        </form>
+                    </td>
                 </tr>
             }
         }

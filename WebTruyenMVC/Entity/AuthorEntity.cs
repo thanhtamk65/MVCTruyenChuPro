@@ -12,4 +12,10 @@ namespace WebTruyenMVC.Entity
         public string Bio { get; set; } = string.Empty;
         public List<string> Stories { get; set; } = new List<string>();
     }
+
+    public class AuthorWithStoryCountViewModel
+    {
+        public AuthorEntity Author { get; set; }
+        public int StoryCount { get; set; }
+    }
 }
