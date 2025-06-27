@@ -1,8 +1,9 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System.Diagnostics;
 using WebTruyenMVC.Entity;
 using WebTruyenMVC.Models;
-using MongoDB.Driver;
 
 namespace WebTruyenMVC.Controllers
 {
@@ -37,12 +38,46 @@ namespace WebTruyenMVC.Controllers
             return View(newestStories);
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> History()
         {
-            return View();
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+                return RedirectToAction("Login", "Auth");
+
+            var readingHistoryCollection = _mongoContext.GetCollection<ReadingHistoryEntity>("ReadingHistory");
+            var storyCollection = _mongoContext.GetCollection<StoryEntity>("Stories");
+
+            // Lấy truyện đã đánh dấu (LastReadChapter == 0)
+            var bookmarks = await readingHistoryCollection.Find(x => x.UserID == userId && x.LastReadChapter == 0).ToListAsync();
+            var bookmarkObjectIds = bookmarks
+                .Where(b => !string.IsNullOrEmpty(b.StoryID))
+                .Select(b => MongoDB.Bson.ObjectId.Parse(b.StoryID))
+                .ToList();
+            var bookmarkIdStrings = bookmarkObjectIds.Select(oid => oid.ToString()).ToList();
+            var bookmarkStories = bookmarkIdStrings.Any()
+                ? await storyCollection.Find(x => bookmarkIdStrings.Contains(x.Id)).ToListAsync()
+                : new List<StoryEntity>();
+
+            // Lấy lịch sử đọc (LastReadChapter > 0)
+            var histories = await readingHistoryCollection.Find(x => x.UserID == userId && x.LastReadChapter > 0).ToListAsync();
+            var historyObjectIds = histories
+                .Where(h => !string.IsNullOrEmpty(h.StoryID))
+                .Select(h => MongoDB.Bson.ObjectId.Parse(h.StoryID))
+                .ToList();
+            var historyIdStrings = historyObjectIds.Select(oid => oid.ToString()).ToList();
+            var historyStories = historyIdStrings.Any()
+                ? await storyCollection.Find(x => historyIdStrings.Contains(x.Id)).ToListAsync()
+                : new List<StoryEntity>();
+
+            var historyList = histories
+                .Select(h => (historyStories.FirstOrDefault(s => s.Id == h.StoryID), h.LastReadChapter))
+                .Where(x => x.Item1 != null)
+                .ToList();
+
+            return View("History", (bookmarkStories.AsEnumerable(), historyList.AsEnumerable()));
         }
 
-        public IActionResult History()
+        public IActionResult Privacy()
         {
             return View();
         }

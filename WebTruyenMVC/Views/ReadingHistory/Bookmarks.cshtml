@@ -1,0 +1,27 @@
+﻿@model IEnumerable<WebTruyenMVC.Entity.StoryEntity>
+@{
+    ViewData["Title"] = "Truyện đã đánh dấu";
+}
+
+<h2>Truyện đã đánh dấu</h2>
+
+@if (TempData["BookmarkSuccess"] != null)
+{
+    <div class="alert alert-success">@TempData["BookmarkSuccess"]</div>
+}
+
+@if (!Model.Any())
+{
+    <p>Bạn chưa đánh dấu truyện nào.</p>
+}
+else
+{
+    <ul>
+        @foreach (var story in Model)
+        {
+            <li>
+                <a asp-controller="Story" asp-action="DetailStory" asp-route-id="@story.Id">@story.Title</a>
+            </li>
+        }
+    </ul>
+}

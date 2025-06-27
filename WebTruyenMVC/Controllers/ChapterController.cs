@@ -51,6 +51,36 @@ public class ChapterController : Controller
         ViewBag.PrevChapterId = prevChapter?.Id;
         ViewBag.NextChapterId = nextChapter?.Id;
 
+        // --- Bổ sung cập nhật lịch sử đọc ---
+        var userId = HttpContext.Session.GetString("UserId");
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var readingHistoryCollection = _mongoContext.GetCollection<ReadingHistoryEntity>("ReadingHistory");
+            var filter = Builders<ReadingHistoryEntity>.Filter.Where(x => x.UserID == userId && x.StoryID == chapter.StoryId);
+            var history = await readingHistoryCollection.Find(filter).FirstOrDefaultAsync();
+            if (history == null)
+            {
+                // Tạo mới lịch sử đọc
+                var newHistory = new ReadingHistoryEntity
+                {
+                    UserID = userId,
+                    StoryID = chapter.StoryId,
+                    LastReadChapter = chapter.ChapterNumber,
+                    LastReadAt = DateTime.UtcNow
+                };
+                await readingHistoryCollection.InsertOneAsync(newHistory);
+            }
+            else
+            {
+                // Cập nhật chương mới nhất đã đọc
+                var update = Builders<ReadingHistoryEntity>.Update
+                    .Set(x => x.LastReadChapter, chapter.ChapterNumber)
+                    .Set(x => x.LastReadAt, DateTime.UtcNow);
+                await readingHistoryCollection.UpdateOneAsync(filter, update);
+            }
+        }
+        // --- Kết thúc bổ sung ---
+
         return View(chapter);
     }
 

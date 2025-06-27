@@ -20,6 +20,8 @@ namespace WebTruyenMVC.Entity
         public string AuthorId { get; set; } = string.Empty;
 
 
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string CategoryId { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
 
         public double Rating { get; set; }

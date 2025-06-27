@@ -1,79 +1,133 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using MongoDB.Driver;
 using WebTruyenMVC.Entity;
 using WebTruyenMVC.Models;
+using System.Text.Json;
 
 namespace WebTruyenMVC.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
     public class CategoryController : Controller
     {
-        private readonly MongoContext mongoContext;
-        private readonly ILogger<CategoryController> logger;
+        private readonly MongoContext _mongoContext;
+        private readonly ILogger<CategoryController> _logger;
 
         public CategoryController(MongoContext mongoContext, ILogger<CategoryController> logger)
         {
-            this.mongoContext = mongoContext;
-            this.logger = logger;
+            _mongoContext = mongoContext;
+            _logger = logger;
         }
 
-        /// <summary>
-        /// Lấy danh sách tất cả thể loại tryện
-        /// </summary>
-        [HttpPost("ListAll")]
-        public async Task<IActionResult> GetAll([FromBody] FilterEntity request)
+        // Danh sách tất cả thể loại
+        public async Task<IActionResult> Index()
         {
-            var csModel = new CategoryModel(mongoContext, logger);
-            var response = await csModel.GetAllCategoryAsync(request);
+            var model = new CategoryModel(_mongoContext, _logger);
+            var response = await model.GetAllCategoryAsync(new FilterEntity());
 
-            return Ok(response);
+            if (response.Code != 200 || response.Data == null)
+                return View(new List<CategoryEntity>());
+
+            var json = JsonSerializer.Serialize(response.Data);
+            var parsed = JsonSerializer.Deserialize<CategoryListResponse>(json);
+
+            var categories = parsed?.ListData ?? new List<CategoryEntity>();
+            return View(categories);
         }
 
-        /// <summary>
-        /// Lấy thể loại truyện theo id
-        /// </summary>
-        [HttpGet("GetById/{id}")]
-        public async Task<IActionResult> GetById(string id)
+        // Chi tiết thể loại
+        public async Task<IActionResult> Details(string id)
         {
-            var csModel = new CategoryModel(mongoContext, logger);
-            var response = await csModel.GetCategoryByIdAsync(id);
-            return Ok(response);
+            var model = new CategoryModel(_mongoContext, _logger);
+            var response = await model.GetCategoryByIdAsync(id);
+
+            if (response.Code != 200 || response.Data == null)
+                return NotFound();
+
+            var category = JsonSerializer.Deserialize<CategoryEntity>(response.Data.ToString()!);
+            return View(category);
         }
 
-        /// <summary>
-        /// Thêm mới thể loại
-        /// </summary>
-        [HttpPost("Create")]
-        public async Task<IActionResult> Create([FromBody] CategoryEntity newCategory)
+        // Form tạo mới thể loại
+        public IActionResult Create()
         {
-            var csModel = new CategoryModel(mongoContext, logger);
-            var response = await csModel.CreateCategoryAsync(newCategory);
-            return Ok(response);
+            return View();
         }
 
-        /// <summary>
-        /// Cập nhật thể loại
-        /// </summary>
-        [HttpPut("Update/{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] CategoryEntity updateCategory)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CategoryEntity category)
         {
-            updateCategory.Id = id;
-            var csModel = new CategoryModel(mongoContext, logger);
-            var response = await csModel.UpdateCategoryAsync(updateCategory);
-            return Ok(response);
+            if (ModelState.IsValid)
+            {
+                var model = new CategoryModel(_mongoContext, _logger);
+                var response = await model.CreateCategoryAsync(category);
+                if (response.Code == 201)
+                    return RedirectToAction(nameof(Index));
+            }
+            return View(category);
         }
 
-        /// <summary>
-        /// Xóa thể loại
-        /// </summary>
-        [HttpDelete("Delete/{id}")]
+        // Form chỉnh sửa
+        public async Task<IActionResult> Edit(string id)
+        {
+            var model = new CategoryModel(_mongoContext, _logger);
+            var response = await model.GetCategoryByIdAsync(id);
+
+            if (response.Code != 200 || response.Data == null)
+                return NotFound();
+
+            var category = response.Data as CategoryEntity;
+            return View(category);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, CategoryEntity category)
+        {
+            if (ModelState.IsValid)
+            {
+                category.Id = id;
+                var model = new CategoryModel(_mongoContext, _logger);
+                var response = await model.UpdateCategoryAsync(category);
+
+                if (response.Code == 200)
+                    return RedirectToAction(nameof(Index));
+            }
+            return View(category);
+        }
+
+        // Xác nhận xóa
         public async Task<IActionResult> Delete(string id)
         {
-            var csModel = new CategoryModel(mongoContext, logger);
-            var response = await csModel.DeleteCategoryAsync(id);
-            return Ok(response);
+            var model = new CategoryModel(_mongoContext, _logger);
+            var response = await model.GetCategoryByIdAsync(id);
+
+            if (response.Code != 200 || response.Data == null)
+                return NotFound();
+
+            var category = response.Data as CategoryEntity;
+            return View(category);
         }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            var model = new CategoryModel(_mongoContext, _logger);
+            var response = await model.DeleteCategoryAsync(id);
+
+            if (response.Code == 200)
+                return RedirectToAction(nameof(Index));
+
+            return NotFound();
+        }
+    }
+
+    // Dùng để map lại dữ liệu trả về từ MessagesResponse.Data
+    public class CategoryListResponse
+    {
+        public long TotalItemCounts { get; set; }
+        public int Page { get; set; }
+        public int PageSize { get; set; }
+        public List<CategoryEntity> ListData { get; set; } = new();
     }
 }

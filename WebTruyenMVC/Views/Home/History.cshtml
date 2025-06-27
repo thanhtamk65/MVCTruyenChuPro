@@ -1,3 +1,104 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model (IEnumerable<WebTruyenMVC.Entity.StoryEntity> Bookmarks, IEnumerable<(WebTruyenMVC.Entity.StoryEntity Story, int LastReadChapter)> History)
+
+@{
+    ViewData["Title"] = "Tủ truyện";
 }
+
+<h2 class="mb-4">@ViewData["Title"]</h2>
+
+<ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="bookmark-tab" data-toggle="tab" href="#bookmark" role="tab">Đánh dấu</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="history-tab" data-toggle="tab" href="#history" role="tab">Lịch sử</a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="bookmark" role="tabpanel">
+        @if (!Model.Bookmarks.Any())
+        {
+            <div class="text-center text-muted">Bạn chưa đánh dấu truyện nào.</div>
+        }
+        else
+        {
+            <div class="list-group">
+                @foreach (var story in Model.Bookmarks)
+                {
+                    <div class="list-group-item py-3 px-2 mb-2 rounded d-flex align-items-center story-item">
+                        <img src="/@story.CoverImage"
+                             alt="@story.Title"
+                             class="rounded mr-3 story-thumb"
+                             style="width: 80px; height: 110px; object-fit: cover; background: #222;" />
+                        <div class="flex-grow-1 ml-3">
+                            <h5 class="mb-1">@story.Title</h5>
+                            <div class="mb-1 text-muted" style="font-size: 0.95em;">
+                                <span><strong>Lượt xem:</strong> @story.Views</span> |
+                                <span><strong>Trạng thái:</strong> @story.Status</span>
+                            </div>
+                            <div class="mb-2 text-truncate" style="max-width: 600px;">
+                                @story.Description
+                            </div>
+                            <a asp-controller="Story" asp-action="DetailStory" asp-route-id="@story.Id" class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+    <div class="tab-pane fade" id="history" role="tabpanel">
+        @if (!Model.History.Any())
+        {
+            <div class="text-center text-muted">Bạn chưa có lịch sử đọc truyện.</div>
+        }
+        else
+        {
+            <div class="list-group">
+                @foreach (var item in Model.History)
+                {
+                    var story = item.Story;
+                    <div class="list-group-item py-3 px-2 mb-2 rounded d-flex align-items-center story-item">
+                        <img src="/@story.CoverImage"
+                             alt="@story.Title"
+                             class="rounded mr-3 story-thumb"
+                             style="width: 80px; height: 110px; object-fit: cover; background: #222;" />
+                        <div class="flex-grow-1 ml-3">
+                            <h5 class="mb-1">@story.Title</h5>
+                            <div class="mb-1 text-muted" style="font-size: 0.95em;">
+                                <span><strong>Lượt xem:</strong> @story.Views</span> |
+                                <span><strong>Trạng thái:</strong> @story.Status</span>
+                            </div>
+                            <div class="mb-2 text-truncate" style="max-width: 600px;">
+                                @story.Description
+                            </div>
+                            <div class="mb-2">
+                                <span class="badge bg-info text-dark">Đọc đến chương: @item.LastReadChapter</span>
+                            </div>
+                            <a asp-controller="Story" asp-action="DetailStory" asp-route-id="@story.Id" class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .story-item {
+        background: #181818;
+        border: 1px solid #333;
+    }
+
+    .story-thumb {
+        min-width: 80px;
+        min-height: 110px;
+        max-width: 80px;
+        max-height: 110px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    .list-group-item {
+        border: none;
+    }
+</style>

@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Tạo Truyện Mới";
     var authors = ViewBag.Authors as List<WebTruyenMVC.Entity.AuthorEntity> ?? new List<WebTruyenMVC.Entity.AuthorEntity>();
+    var category = ViewBag.Category as List<WebTruyenMVC.Entity.CategoryEntity> ?? new List<WebTruyenMVC.Entity.CategoryEntity>();
 }
 
 <h2>@ViewData["Title"]</h2>
@@ -20,6 +21,14 @@
             <option value="">-- Chọn tác giả --</option>
         </select>
         <span asp-validation-for="AuthorId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CategoryId">Thể loại</label>
+        <select asp-for="CategoryId" class="form-control" asp-items="@(new SelectList(category, "Id", "Name"))">
+            <option value="">-- Chọn thể loại --</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
     </div>
 
     <div class="form-group">

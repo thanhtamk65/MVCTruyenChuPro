@@ -67,11 +67,11 @@ namespace WebTruyenMVC.Controllers
             return View(story);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            // Lấy danh sách tác giả
             var authorModel = new AuthorModel(_mongoContext, _logger);
-            var authorsResponse = authorModel.GetAllAuthorAsync(new FilterEntity()).Result;
-
+            var authorsResponse = await authorModel.GetAllAuthorAsync(new FilterEntity());
             List<AuthorEntity> authors = new List<AuthorEntity>();
             if (authorsResponse.Code == 200 && authorsResponse.Data != null)
             {
@@ -79,18 +79,31 @@ namespace WebTruyenMVC.Controllers
                 var parsed = JsonSerializer.Deserialize<AuthorListResponse>(json);
                 authors = parsed?.ListData ?? new List<AuthorEntity>();
             }
-
             ViewBag.Authors = authors;
+
+            // Lấy danh sách thể loại
+            var categoryModel = new CategoryModel(_mongoContext, _logger);
+            var categoriesResponse = await categoryModel.GetAllCategoryAsync(new FilterEntity());
+            List<CategoryEntity> categories = new List<CategoryEntity>();
+            if (categoriesResponse.Code == 200 && categoriesResponse.Data != null)
+            {
+                var json = JsonSerializer.Serialize(categoriesResponse.Data);
+                var parsed = JsonSerializer.Deserialize<CategoryListResponse>(json);
+                categories = parsed?.ListData ?? new List<CategoryEntity>();
+            }
+            ViewBag.Category = categories;
+
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Create(StoryEntity story, IFormFile CoverImageFile)
         {
+            // Lấy danh sách tác giả
             var authorModel = new AuthorModel(_mongoContext, _logger);
             var authorsResponse = await authorModel.GetAllAuthorAsync(new FilterEntity());
-
             List<AuthorEntity> authors = new List<AuthorEntity>();
             if (authorsResponse.Code == 200 && authorsResponse.Data != null)
             {
@@ -100,7 +113,19 @@ namespace WebTruyenMVC.Controllers
             }
             ViewBag.Authors = authors;
 
-            // Xử lý upload ảnh bìa
+            // Lấy danh sách thể loại
+            var categoryModel = new CategoryModel(_mongoContext, _logger);
+            var categoriesResponse = await categoryModel.GetAllCategoryAsync(new FilterEntity());
+            List<CategoryEntity> categories = new List<CategoryEntity>();
+            if (categoriesResponse.Code == 200 && categoriesResponse.Data != null)
+            {
+                var json = JsonSerializer.Serialize(categoriesResponse.Data);
+                var parsed = JsonSerializer.Deserialize<CategoryListResponse>(json);
+                categories = parsed?.ListData ?? new List<CategoryEntity>();
+            }
+            ViewBag.Category = categories;
+
+            // Xử lý upload ảnh bìa (giữ nguyên phần này)
             if (CoverImageFile != null && CoverImageFile.Length > 0)
             {
                 var fileName = Path.GetFileNameWithoutExtension(CoverImageFile.FileName);
@@ -108,7 +133,6 @@ namespace WebTruyenMVC.Controllers
                 var newFileName = $"{fileName}_{Guid.NewGuid()}{extension}";
                 var imagePath = Path.Combine("wwwroot", "img", newFileName);
 
-                // Đảm bảo thư mục img tồn tại
                 Directory.CreateDirectory(Path.GetDirectoryName(imagePath)!);
 
                 using (var stream = new FileStream(imagePath, FileMode.Create))
@@ -116,7 +140,6 @@ namespace WebTruyenMVC.Controllers
                     await CoverImageFile.CopyToAsync(stream);
                 }
 
-                // Lưu đường dẫn tương đối vào DB
                 story.CoverImage = "img/" + newFileName;
             }
 
