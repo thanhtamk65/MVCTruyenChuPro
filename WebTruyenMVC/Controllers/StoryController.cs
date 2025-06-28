@@ -327,6 +327,40 @@ namespace WebTruyenMVC.Controllers
             };
             return View(vm);
         }
+
+        public async Task<IActionResult> ByCategory(string categoryId, int page = 1, int pageSize = 24)
+        {
+            var model = new StoryModel(_mongoContext, _logger);
+            var filter = new FilterEntity
+            {
+                Page = page,
+                PageSize = pageSize,
+                filter = new Filter { CategoryId = categoryId }
+            };
+            var response = await model.GetAllStoryAsync(filter);
+
+            // Xử lý dữ liệu trả về
+            var stories = new List<StoryEntity>();
+            long total = 0;
+            if (response.Code == 200 && response.Data != null)
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(response.Data);
+                var parsed = System.Text.Json.JsonSerializer.Deserialize<StoryListResponse>(json);
+                stories = parsed?.ListData ?? new List<StoryEntity>();
+                total = parsed?.TotalItemCounts ?? 0;
+            }
+
+            int totalPages = (int)Math.Ceiling(total / (double)pageSize);
+
+            var vm = new LatestStoriesViewModel
+            {
+                Stories = stories,
+                CurrentPage = page,
+                TotalPages = totalPages
+            };
+
+            return View("Latest", vm);
+        }
     }
 
     // Phục vụ cho GetAllStoryAsync → lấy ListData từ MessagesResponse.Data

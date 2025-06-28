@@ -120,6 +120,21 @@ namespace WebTruyenMVC.Controllers
 
             return NotFound();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Dropdown()
+        {
+            var model = new CategoryModel(_mongoContext, _logger);
+            var response = await model.GetAllCategoryAsync(new FilterEntity());
+            var categories = new List<CategoryEntity>();
+            if (response.Code == 200 && response.Data != null)
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(response.Data);
+                var parsed = System.Text.Json.JsonSerializer.Deserialize<CategoryListResponse>(json);
+                categories = parsed?.ListData ?? new List<CategoryEntity>();
+            }
+            return PartialView("_CategoryDropdown", categories);
+        }
     }
 
     // Dùng để map lại dữ liệu trả về từ MessagesResponse.Data

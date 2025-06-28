@@ -1,0 +1,7 @@
+﻿@model IEnumerable<WebTruyenMVC.Entity.CategoryEntity>
+
+@foreach (var category in Model)
+{
+    <a class="dropdown-item" asp-controller="Story" asp-action="ByCategory" asp-route-categoryId="@category.Id">@category.Name</a>
+}
+<div class="dropdown-divider"></div>

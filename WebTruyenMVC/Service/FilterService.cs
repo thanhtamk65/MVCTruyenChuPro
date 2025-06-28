@@ -16,6 +16,12 @@ namespace WebTruyenMVC.Service
                 filterDefinition &= builder.Regex("Title", new MongoDB.Bson.BsonRegularExpression(q, "i"));
             }
 
+            // Lọc theo CategoryId nếu có (chỉ áp dụng cho StoryEntity)
+            if (typeof(T).Name == nameof(WebTruyenMVC.Entity.StoryEntity) && filter != null && !string.IsNullOrEmpty(filter.CategoryId))
+            {
+                filterDefinition &= builder.Eq("CategoryId", filter.CategoryId);
+            }
+
             return filterDefinition;
         }
 

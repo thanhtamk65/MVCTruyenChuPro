@@ -12,7 +12,7 @@
 
     public class Filter
     {
-
+        public string? CategoryId { get; set; }
     }
     public class Register
     {

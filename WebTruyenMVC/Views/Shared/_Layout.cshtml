@@ -29,26 +29,16 @@
                                     Trang chủ<span class="sr-only">(current)</span>
                                 </a>
                             </li>
-@*                             <li class="nav-item">
-                                <a class="nav-link" href="list.html">Mới nhất</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="list.html">Phổ biến</a>
-                            </li> *@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Thể loại
                                 </a>
-                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="list.html?genre=Hành động">Hành động</a>
-                                    <a class="dropdown-item" href="list.html?genre=Hài hước">Hài hước</a>
-                                    <a class="dropdown-item" href="list.html?genre=Kinh dị">Kinh dị</a>
-                                    <a class="dropdown-item" href="list.html?genre=Phiêu lưu">Phiêu lưu</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="list.html">Tất cả</a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown" id="categoryDropdownMenu">
+                                    <span>Đang tải...</span>
                                 </div>
                             </li>
+
                             <li class="nav-item"><a class="nav-link" href="contact.html">Liên hệ</a></li>
                         </ul>
                     </div>
@@ -139,6 +129,14 @@
                     submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
                 }
             });
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+
+    <script>
+        $(function () {
+            $("#categoryDropdownMenu").load("/Category/Dropdown");
         });
     </script>
 </body>
