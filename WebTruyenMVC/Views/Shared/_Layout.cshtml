@@ -20,7 +20,7 @@
         </a> *@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <div class="container-fluid">
-                <div class="row py-3">
+                <div class="row py-3 align-items-center">
                     <div class="col-lg-6 col-sm-12 mb-3 mb-sm-0">
                         <ul class="navbar-nav mr-auto">
                             <!-- always use single word for li -->
@@ -42,14 +42,15 @@
                             <li class="nav-item"><a class="nav-link" href="contact.html">Liên hệ</a></li>
                         </ul>
                     </div>
-                    <div class="col">
-                        <form class="form-inline search">
-                            <div class="input-group">
-                                <input type="text" class="form-control"
+                    <div class="col-lg-6 col-sm-12 d-flex justify-content-end">
+                        <form class="form-inline w-100" method="get" asp-controller="Story" asp-action="Search" style="max-width:500px;">
+                            <div class="input-group w-100">
+                                <input type="text" class="form-control" name="q"
                                        placeholder="Tìm kiếm theo tên truyện, tác giả"
-                                       aria-label="Tìm kiếm theo tên truyện, tác giả">
+                                       aria-label="Tìm kiếm theo tên truyện, tác giả"
+                                       style="min-width: 300px;" />
                                 <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button">
+                                    <button class="btn btn-outline-secondary" type="submit">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </div>
@@ -131,8 +132,6 @@
             });
         });
     </script>
-
-    @RenderSection("Scripts", required: false)
 
     <script>
         $(function () {

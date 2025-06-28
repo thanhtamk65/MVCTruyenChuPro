@@ -10,10 +10,19 @@ namespace WebTruyenMVC.Service
             var builder = Builders<T>.Filter;
             var filterDefinition = builder.Empty;
 
-            // Lọc theo trường Title nếu q có giá trị (áp dụng với mọi entity có thuộc tính Title)
+            // Lọc theo Title hoặc AuthorName nếu q có giá trị (áp dụng cho StoryEntity)
             if (!string.IsNullOrEmpty(q))
             {
-                filterDefinition &= builder.Regex("Title", new MongoDB.Bson.BsonRegularExpression(q, "i"));
+                if (typeof(T).Name == nameof(WebTruyenMVC.Entity.StoryEntity))
+                {
+                    var titleFilter = builder.Regex("Title", new MongoDB.Bson.BsonRegularExpression(q, "i"));
+                    var authorFilter = builder.Regex("AuthorName", new MongoDB.Bson.BsonRegularExpression(q, "i"));
+                    filterDefinition &= builder.Or(titleFilter, authorFilter);
+                }
+                else
+                {
+                    filterDefinition &= builder.Regex("Title", new MongoDB.Bson.BsonRegularExpression(q, "i"));
+                }
             }
 
             // Lọc theo CategoryId nếu có (chỉ áp dụng cho StoryEntity)
