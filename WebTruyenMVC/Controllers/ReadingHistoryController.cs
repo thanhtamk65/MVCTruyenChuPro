@@ -73,7 +73,7 @@ namespace WebTruyenMVC.Controllers
 
             // Kiểm tra đã đánh dấu chưa
             var collection = mongoContext.GetCollection<ReadingHistoryEntity>("ReadingHistory");
-            var existing = await collection.Find(x => x.UserID == userId && x.StoryID == storyId && x.LastReadChapter == 0).FirstOrDefaultAsync();
+            var existing = await collection.Find(x => x.UserID == userId && x.StoryID == storyId).FirstOrDefaultAsync();
             if (existing == null)
             {
                 var bookmark = new ReadingHistoryEntity
@@ -98,15 +98,13 @@ namespace WebTruyenMVC.Controllers
             if (string.IsNullOrEmpty(userId))
                 return RedirectToAction("Login", "Auth");
 
-            // Lấy danh sách truyện đã đánh dấu (LastReadChapter == 0)
             var readingHistoryCollection = mongoContext.GetCollection<ReadingHistoryEntity>("ReadingHistory");
             var storyCollection = mongoContext.GetCollection<StoryEntity>("Stories");
 
-            var bookmarks = await readingHistoryCollection.Find(x => x.UserID == userId && x.LastReadChapter == 0).ToListAsync();
+            var bookmarks = await readingHistoryCollection.Find(x => x.UserID == userId).ToListAsync();
             var storyIds = bookmarks.Select(b => b.StoryID).ToList();
             var stories = await storyCollection.Find(x => storyIds.Contains(x.Id)).ToListAsync();
 
-            // Truyền danh sách truyện sang view
             TempData["BookmarkSuccess"] = TempData["BookmarkSuccess"] ?? null;
             return View(stories);
         }

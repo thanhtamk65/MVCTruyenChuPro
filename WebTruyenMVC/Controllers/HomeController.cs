@@ -47,8 +47,7 @@ namespace WebTruyenMVC.Controllers
             var readingHistoryCollection = _mongoContext.GetCollection<ReadingHistoryEntity>("ReadingHistory");
             var storyCollection = _mongoContext.GetCollection<StoryEntity>("Stories");
 
-            // Lấy truyện đã đánh dấu (LastReadChapter == 0)
-            var bookmarks = await readingHistoryCollection.Find(x => x.UserID == userId && x.LastReadChapter == 0).ToListAsync();
+            var bookmarks = await readingHistoryCollection.Find(x => x.UserID == userId).ToListAsync();
             var bookmarkObjectIds = bookmarks
                 .Where(b => !string.IsNullOrEmpty(b.StoryID))
                 .Select(b => MongoDB.Bson.ObjectId.Parse(b.StoryID))
@@ -58,7 +57,6 @@ namespace WebTruyenMVC.Controllers
                 ? await storyCollection.Find(x => bookmarkIdStrings.Contains(x.Id)).ToListAsync()
                 : new List<StoryEntity>();
 
-            // Lấy lịch sử đọc (LastReadChapter > 0)
             var histories = await readingHistoryCollection.Find(x => x.UserID == userId && x.LastReadChapter > 0).ToListAsync();
             var historyObjectIds = histories
                 .Where(h => !string.IsNullOrEmpty(h.StoryID))

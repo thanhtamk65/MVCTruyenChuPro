@@ -29,56 +29,6 @@ namespace WebTruyenMVC.Controllers
             return Ok(response);
         }
 
-        // Hiển thị form cập nhật tài khoản
-        [HttpGet("/User/Profile")]
-        public async Task<IActionResult> Profile()
-        {
-            var userId = HttpContext.Session.GetString("UserId");
-            if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Auth");
-
-            var csModel = new UserModel(mongoContext, logger);
-            var response = await csModel.GetUserByIdAsync(userId);
-            if (response.Code != 200 || response.Data == null)
-                return NotFound();
-
-            var user = response.Data as UserEntity;
-            return View(user);
-        }
-
-        // Xử lý cập nhật thông tin tài khoản
-        [HttpPost("/User/Profile")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Profile(UserEntity model)
-        {
-            var userId = HttpContext.Session.GetString("_id");
-            if (string.IsNullOrEmpty(userId))
-                return RedirectToAction("Login", "Auth");
-
-            model._id = userId;
-
-            var updateRequest = new UpdateUserRequest
-            {
-                UserId = model._id,
-                Email = model.Email,
-                Avatar = model.Avatar,
-                Password = string.IsNullOrWhiteSpace(model.Password) ? null : model.Password
-            };
-
-            var userModel = new UserModel(mongoContext, logger);
-            var result = await userModel.UpdateUserAsync(updateRequest);
-
-            if (result.Code == 200)
-                ViewBag.Message = "Cập nhật thành công!";
-            else
-                ViewBag.Message = $"Cập nhật thất bại! {result.Message}";
-
-            // Lấy lại thông tin user mới nhất để truyền vào View
-            var response = await userModel.GetUserByIdAsync(userId);
-            var user = response.Data as UserEntity;
-            return View(user);
-        }
-
         [HttpPut("Lock/{id}")]
         public async Task<IActionResult> Lock(string id)
         {

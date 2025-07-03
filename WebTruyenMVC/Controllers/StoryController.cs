@@ -234,7 +234,7 @@ namespace WebTruyenMVC.Controllers
         {
             var storyModel = new StoryModel(_mongoContext, _logger);
             var authorModel = new AuthorModel(_mongoContext, _logger);
-
+                
             var storyResponse = await storyModel.GetStoryByIdAsync(id);
             if (storyResponse.Code != 200 || storyResponse.Data == null)
                 return NotFound();
@@ -367,12 +367,10 @@ namespace WebTruyenMVC.Controllers
             var authorCollection = _mongoContext.GetCollection<AuthorEntity>("Authors");
             var storyCollection = _mongoContext.GetCollection<StoryEntity>("Stories");
 
-            // 1. Tìm AuthorId theo Name
             var authorFilter = Builders<AuthorEntity>.Filter.Regex("Name", new MongoDB.Bson.BsonRegularExpression(q, "i"));
             var authors = await authorCollection.Find(authorFilter).ToListAsync();
             var authorIds = authors.Select(a => a.Id).ToList();
 
-            // 2. Tìm truyện theo AuthorId
             List<StoryEntity> storiesByAuthor = new();
             if (authorIds.Any())
             {
@@ -380,17 +378,14 @@ namespace WebTruyenMVC.Controllers
                 storiesByAuthor = await storyCollection.Find(storyByAuthorFilter).ToListAsync();
             }
 
-            // 3. Tìm truyện theo Title
             var storyByTitleFilter = Builders<StoryEntity>.Filter.Regex("Title", new MongoDB.Bson.BsonRegularExpression(q, "i"));
             var storiesByTitle = await storyCollection.Find(storyByTitleFilter).ToListAsync();
 
-            // 4. Gộp kết quả, loại trùng (theo Id)
             var allStories = storiesByAuthor.Concat(storiesByTitle)
                                            .GroupBy(s => s.Id)
                                            .Select(g => g.First())
                                            .ToList();
 
-            // 5. Phân trang
             var totalRecords = allStories.Count;
             var pagedStories = allStories.Skip((page - 1) * pageSize).Take(pageSize).ToList();
             int totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);

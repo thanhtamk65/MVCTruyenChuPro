@@ -40,8 +40,6 @@ public class AccountController : Controller
         if (string.IsNullOrEmpty(userId))
             return RedirectToAction("Login", "Auth");
 
-        model._id = userId;
-
         var accountModel = new AccountModel(mongoContext, logger);
         var result = await accountModel.UpdateUserAsync(model);
 
