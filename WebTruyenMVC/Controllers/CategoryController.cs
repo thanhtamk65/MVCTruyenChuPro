@@ -33,7 +33,6 @@ namespace WebTruyenMVC.Controllers
             return View(categories);
         }
 
-        // Chi tiết thể loại
         public async Task<IActionResult> Details(string id)
         {
             var model = new CategoryModel(_mongoContext, _logger);
@@ -46,7 +45,6 @@ namespace WebTruyenMVC.Controllers
             return View(category);
         }
 
-        // Form tạo mới thể loại
         public IActionResult Create()
         {
             return View();
@@ -66,7 +64,6 @@ namespace WebTruyenMVC.Controllers
             return View(category);
         }
 
-        // Form chỉnh sửa
         public async Task<IActionResult> Edit(string id)
         {
             var model = new CategoryModel(_mongoContext, _logger);
@@ -95,7 +92,6 @@ namespace WebTruyenMVC.Controllers
             return View(category);
         }
 
-        // Xác nhận xóa
         public async Task<IActionResult> Delete(string id)
         {
             var model = new CategoryModel(_mongoContext, _logger);

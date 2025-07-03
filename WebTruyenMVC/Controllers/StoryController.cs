@@ -98,7 +98,6 @@ namespace WebTruyenMVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-
         public async Task<IActionResult> Create(StoryEntity story, IFormFile CoverImageFile)
         {
             // Lấy danh sách tác giả
@@ -159,8 +158,6 @@ namespace WebTruyenMVC.Controllers
             public AuthorEntity? Author { get; set; }
         }
 
-
-        // Form cập nhật
         public async Task<IActionResult> Edit(string id)
         {
             var model = new StoryModel(_mongoContext, _logger);
@@ -189,7 +186,6 @@ namespace WebTruyenMVC.Controllers
             return View(story);
         }
 
-        // Form xác nhận xóa
         public async Task<IActionResult> Delete(string id)
         {
             var model = new StoryModel(_mongoContext, _logger);
@@ -214,21 +210,6 @@ namespace WebTruyenMVC.Controllers
 
             return NotFound();
         }
-
-        //// Truyện được đánh giá cao
-        //public async Task<IActionResult> TopRated()
-        //{
-        //    var model = new StoryModel(_mongoContext, _logger);
-        //    var response = await model.GetTopRatedStoriesAsync();
-
-        //    if (response.Code != 200 || response.Data == null)
-        //        return View(new List<StoryEntity>());
-
-        //    var json = JsonSerializer.Serialize(response.Data);
-        //    var list = JsonSerializer.Deserialize<List<StoryEntity>>(json);
-
-        //    return View(list ?? new List<StoryEntity>());
-        //}
 
         public async Task<IActionResult> DetailStory(string id, int page = 1)
         {

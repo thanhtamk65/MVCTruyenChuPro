@@ -49,7 +49,6 @@ namespace WebTruyenMVC.Controllers
             return View(authorViewModels);
         }
 
-        // Chi tiết tác giả
         public async Task<IActionResult> Details(string id)
         {
             var model = new AuthorModel(_mongoContext, _logger);
@@ -62,7 +61,6 @@ namespace WebTruyenMVC.Controllers
             return View(author);
         }
 
-        // Form tạo mới tác giả
         public IActionResult Create()
         {
             return View();
@@ -82,7 +80,6 @@ namespace WebTruyenMVC.Controllers
             return View(author);
         }
 
-        // Form chỉnh sửa
         public async Task<IActionResult> Edit(string id)
         {
             var model = new AuthorModel(_mongoContext, _logger);
@@ -111,7 +108,6 @@ namespace WebTruyenMVC.Controllers
             return View(author);
         }
 
-        // Xác nhận xóa
         public async Task<IActionResult> Delete(string id)
         {
             var model = new AuthorModel(_mongoContext, _logger);
