@@ -73,11 +73,6 @@ namespace WebTruyenMVC.Controllers
         {
             var sessionCode = HttpContext.Session.GetString("RegisterVerificationCode");
             var expiryStr = HttpContext.Session.GetString("RegisterVerificationExpiry");
-            if (sessionCode == null || expiryStr == null)
-            {
-                ModelState.AddModelError("", "Phiên đăng ký đã hết hạn. Vui lòng đăng ký lại.");
-                return View();
-            }
 
             if (sessionCode != code)
             {
@@ -97,7 +92,6 @@ namespace WebTruyenMVC.Controllers
                 UserName = HttpContext.Session.GetString("RegisterUserName"),
                 Email = HttpContext.Session.GetString("RegisterEmail"),
                 Password = HttpContext.Session.GetString("RegisterPassword"),
-                //IsVerified = true,
                 Role = "User",
                 Avatar = "default.png"
             };

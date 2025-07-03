@@ -215,20 +215,20 @@ namespace WebTruyenMVC.Controllers
             return NotFound();
         }
 
-        // Truyện được đánh giá cao
-        public async Task<IActionResult> TopRated()
-        {
-            var model = new StoryModel(_mongoContext, _logger);
-            var response = await model.GetTopRatedStoriesAsync();
+        //// Truyện được đánh giá cao
+        //public async Task<IActionResult> TopRated()
+        //{
+        //    var model = new StoryModel(_mongoContext, _logger);
+        //    var response = await model.GetTopRatedStoriesAsync();
 
-            if (response.Code != 200 || response.Data == null)
-                return View(new List<StoryEntity>());
+        //    if (response.Code != 200 || response.Data == null)
+        //        return View(new List<StoryEntity>());
 
-            var json = JsonSerializer.Serialize(response.Data);
-            var list = JsonSerializer.Deserialize<List<StoryEntity>>(json);
+        //    var json = JsonSerializer.Serialize(response.Data);
+        //    var list = JsonSerializer.Deserialize<List<StoryEntity>>(json);
 
-            return View(list ?? new List<StoryEntity>());
-        }
+        //    return View(list ?? new List<StoryEntity>());
+        //}
 
         public async Task<IActionResult> DetailStory(string id, int page = 1)
         {
