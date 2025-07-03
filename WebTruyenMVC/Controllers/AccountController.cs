@@ -15,7 +15,6 @@ public class AccountController : Controller
         this.logger = logger;
     }
 
-    // Hiển thị form cập nhật tài khoản
     [HttpGet]
     public async Task<IActionResult> Profile()
     {
@@ -31,7 +30,6 @@ public class AccountController : Controller
         return View(user);
     }
 
-    // Xử lý cập nhật thông tin tài khoản
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Profile(UserEntity model)
